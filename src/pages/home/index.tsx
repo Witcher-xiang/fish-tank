@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
-import { View, Button, Text, CoverImage, } from '@tarojs/components'
+import { View, Button, Text, CoverImage,Picker } from '@tarojs/components'
+import Taro from '@tarojs/taro';
 
+import { AtList, AtListItem } from 'taro-ui'
 
 import CardList from './CardList';
 
@@ -19,6 +21,8 @@ type PageOwnProps = {}
 
 type PageState = {
     tankStatus: any;
+    equList: any[];
+    selectorChecked: String;
 }
 
 type IProps = PageStateProps & PageOwnProps
@@ -35,10 +39,13 @@ class Index extends Component<IProps, PageState> {
         super(porps);
         this.timer = null
         this.state = {
-            tankStatus: false
+            tankStatus: false,
+            equList: [],
+            selectorChecked: ""
         }
 
     }
+    
     componentWillReceiveProps(nextProps) {
         console.log(this.props, nextProps)
     }
@@ -47,14 +54,29 @@ class Index extends Component<IProps, PageState> {
         clearInterval(this.timer)
     }
 
-    componentDidShow() {
-        this.timer = setInterval(() => {
+    async componentDidShow() {
+        const  reg = /=(.+?)&/;
+        
+        const { tid } = this.props;
+        const id = reg.exec(tid)[1];
 
-        }, 30000)
-        console.log("什么是Did show")
+        console.log("result",id)
+        const res = await Taro.request({
+            url:`http://140.143.24.32:8888/equipments?id=${id}`,
+          });
+
+          console.log("res",res)
+
     }
 
     componentDidHide() { }
+
+    handleSelect(e) {
+        this.setState({
+            selectorChecked: this.state.equList[e.detail.value]
+          })
+        console.log("被选择的值为：",e)
+    }
 
     render() {
         const colums = [
@@ -155,6 +177,18 @@ class Index extends Component<IProps, PageState> {
                         <Text className="text">当前无法连接到鱼缸</Text>
                     </View>
                 }
+
+                    <View>
+                    <View>请选择你要查看的鱼缸</View>
+                    <Picker mode='selector' range={this.state.equList} onChange={this.handleSelect}>
+                <AtList>
+                  <AtListItem
+                    title='当前鱼缸为：'
+                    extraText={"324"}
+                  />
+                </AtList>
+              </Picker>
+                </View>
 
                 <CardList columns={colums} dataSource={[]} />
 

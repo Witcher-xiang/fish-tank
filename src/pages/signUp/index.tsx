@@ -40,6 +40,13 @@ interface Index {
 
 
 class Index extends Component {
+  constructor(props){
+    super(props);
+    this.state={
+      message:""
+    }
+  };
+
   componentWillReceiveProps(nextProps) {
     console.log(this.props, nextProps)
   }
@@ -54,19 +61,21 @@ class Index extends Component {
 
   formSubmit =async (e) => {
     console.log('form发生了submit事件，携带数据为：', e.detail.value);
-
+    const { userName, password } = e.detail.value;
     try{
-      // const res = await Taro.request({
-      //   url:"http://140.143.24.32:666",
-      //   header: {
-      //     'content-type': 'application/json' // 默认值
-      //   },
-      // });
-      // console.log("登录的res为",res);
+      const res:any = await Taro.request({
+        url:`http://140.143.24.32:8888/register?id=${userName}&password=${password}`,
+      });
      // 跳转到目的页面，在当前页面打开
+      console.log("返回的注册信息",res)
+
+      if(res?.data?.status === true){
       Taro.redirectTo({
         url: '/pages/index/index'
       })
+      this.setState({message:"注册成功"})
+    }else this.setState({message:"注册失败(可能有重复添加)"});
+
     } catch(err){
       console.log(err)
     }
@@ -103,6 +112,7 @@ class Index extends Component {
       </View>
 
           </Form>
+          <View>{this.state.message}</View>
       </View>
     )
   }

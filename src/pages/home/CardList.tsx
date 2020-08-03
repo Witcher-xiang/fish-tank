@@ -1,10 +1,8 @@
-import React from 'react'
-import { View, Button, Text, CoverImage, } from '@tarojs/components'
-import { AtModal, AtModalHeader, AtModalContent, AtModalAction } from "taro-ui"
+import React, { useState, useEffect } from 'react';
+import { View, Button, Text, CoverImage, } from '@tarojs/components';
+import { AtModal, AtModalHeader, AtModalContent, AtModalAction, AtInput  } from "taro-ui";
 
-
-
-import './index.less'
+import './index.less';
 
 
 interface CardProps {
@@ -14,12 +12,18 @@ interface CardProps {
 
 const CardList = (props: CardProps) => {
 
-    const { columns, dataSource } = props
+    const { columns, dataSource } = props;
+
+    const [visible ,setVisible] = useState(false);
+    const [modalValue, setModalValue] = useState({});
+    const [submitValue, setSubmitValue] = useState("");
 
     const card = (columnItem = {}, dataList = []) => {
 
         const handleEdit = (value) => {
-
+            setVisible(true);
+            setModalValue(value);
+            console.log("valuevaluevalue:",value);
         }
 
         let itemData = "";
@@ -46,7 +50,7 @@ const CardList = (props: CardProps) => {
                 <View className="title">
                     {columnItem?.label}:
 
-                {columnItem?.isTarger ? <Text onClick={(columnItem) => handleEdit(columnItem)} style={{ color: "#6190E8", marginRight: "20px" }}>修改</Text> : ""}
+                {columnItem?.isTarger ? <Text onClick={() => handleEdit(columnItem)} style={{ color: "#6190E8", marginRight: "20px" }}>修改</Text> : ""}
                 </View>
 
                 <View className="body">
@@ -58,17 +62,51 @@ const CardList = (props: CardProps) => {
         </View>)
     }
 
+    const handleVisible = () => {
+        setVisible(true);
+    }
+
     const Modal = () => {
+        if(!visible) return null;
+
+        const onOk = () => {
+            onCancel()
+            console.log("modalValue",modalValue)
+            
+        }
+
+        const onCancel = () => {
+            setVisible(false);
+            setSubmitValue("");
+        }
+
+        const handleChange = (value) =>{
+            console.log(value);
+            setSubmitValue(value)
+        }
 
         return (
             <AtModal isOpened>
                 <AtModalHeader>标题</AtModalHeader>
                 <AtModalContent>
-                    这里是正文内容，欢迎加入京东凹凸实验室
-                    这里是正文内容，欢迎加入京东凹凸实验室
-                    这里是正文内容，欢迎加入京东凹凸实验室
+                {/* <AtForm
+                    onSubmit={this.onSubmit.bind(this)}
+                    onReset={this.onReset.bind(this)}
+                >
+                    <AtInput 
+                    name='value' 
+                    title='文本' 
+                    type='text' 
+                    placeholder='单行文本' 
+                    value={this.state.value} 
+                    onChange={this.handleChange.bind(this, 'value')} 
+                    />
+                    <AtButton formType='submit'>提交</AtButton>
+                    <AtButton formType='reset'>重置</AtButton>
+                </AtForm> */}
+                    <AtInput name="value" placeholder='输入修改值' value={submitValue}    title={modalValue?.label} onChange={handleChange}/>
                 </AtModalContent>
-                <AtModalAction> <Button>取消</Button> <Button>确定</Button> </AtModalAction>
+                <AtModalAction> <Button onClick={onCancel}>取消</Button> <Button onClick={onOk}>确定</Button> </AtModalAction>
             </AtModal>
         )
     }
