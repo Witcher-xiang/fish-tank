@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
-import { View, Button, Text, CoverImage,Picker } from '@tarojs/components'
+import { View, Button, Text, CoverImage, Picker,PickerRegionProps } from '@tarojs/components'
 import Taro from '@tarojs/taro';
 
 import { AtList, AtListItem } from 'taro-ui'
 
 import CardList from './CardList';
 
-import Yes from '../../../assesst/Yes.png'
-import No from '../../../assesst/No.png'
+
 import './index.less';
 
 type PageStateProps = {
@@ -18,7 +17,7 @@ type PageStateProps = {
 
 
 type PageOwnProps = {
-    tid:any
+    tid: any
 }
 
 type PageState = {
@@ -26,9 +25,11 @@ type PageState = {
     equList: any[];
     selectorChecked: String;
     id: String;
+    dateSel: string;
+    timeSel: string;
 }
 
-type IProps = PageStateProps & PageOwnProps
+type IProps = PageStateProps & PageOwnProps & PickerRegionProps
 
 interface Index {
     props: IProps;
@@ -45,11 +46,13 @@ class Index extends Component<IProps, PageState> {
             tankStatus: false,
             equList: [],
             selectorChecked: "",
-            id:""
+            id: "",
+            timeSel:"",
+            dateSel:""
         }
 
     }
-    
+
     componentWillReceiveProps(nextProps) {
         console.log(this.props, nextProps)
     }
@@ -59,46 +62,59 @@ class Index extends Component<IProps, PageState> {
     }
 
     async componentDidShow() {
-        const  reg = /=(.+?)&/;
-        
+        const reg = /=(.+?)&/;
+
         const { tid } = this.props;
         const id = reg.exec(tid)[1];
 
-        console.log("result",id)
+        console.log("result", id)
 
         this.setState({
             id
         })
         const res = await Taro.request({
-            url:`http://140.143.24.32:8888/equipments?id=${id}`,
-          });
+            url: `http://140.143.24.32:8888/equipments?id=${id}`,
+        });
 
-          console.log("res",res)
-          this.setState({
-            equList:res?.data || []
-          })
+        console.log("res", res)
     }
 
 
     handleSelect(e) {
         this.setState({
             selectorChecked: this.state.equList[e.detail.value]
-          })
-        console.log("被选择的值为：",e)
+        })
+        console.log("被选择的值为：", e)
     }
 
-    handleManageFishTank = () =>{
+    handleManageFishTank = () => {
 
-        console.log("handleManageFishTank",this.state)
+        console.log("handleManageFishTank", this.state)
         const { id } = this.state;
         Taro.redirectTo({
             url: `/pages/mangageDevice/index?id=${id}`
         })
-        
+
     }
 
     handleDelete = (e) => {
 
+    }
+
+    // 时间选择器
+    onTimeChange = (timeSel) => {
+        console.log("onTimeChange",timeSel)
+        this.setState({
+            timeSel
+        })
+    }
+
+    // 日期时间选择器
+    onDateChange  = (dateSel) => {
+        console.log("onTimeChange",dateSel)
+        this.setState({
+            dateSel
+        })
     }
 
     render() {
@@ -189,30 +205,42 @@ class Index extends Component<IProps, PageState> {
         return (
             <View className='index'>
 
-                {tankStatus ?
-                    <View className="service-status">
-                        <CoverImage className="image" src={Yes} />
-                        <Text className="text">当前鱼缸链接状态正常!!!</Text>
-                    </View>
-                    :
-                    <View className="service-status">
-                        <CoverImage className="image" src={No} />
-                        <Text className="text">当前无法连接到鱼缸</Text>
-                    </View>
-                }
 
-                    <View>
-                    <Button style={{marginTop:"20px"}}  onClick={this.handleManageFishTank}>管理鱼缸</Button>
+                <View>
+                    <Button style={{ marginTop: "20px" }} onClick={this.handleManageFishTank}>管理鱼缸</Button>
                     <View>请选择你要查看的鱼缸</View>
                     <Picker mode='selector' range={this.state.equList} onChange={this.handleSelect}>
+                        <AtList>
+                            <AtListItem
+                                title='当前鱼缸为：'
+                                extraText={"324"}
+                            />
+                        </AtList>
+                    </Picker>
+                </View>
+
+                <View className='page-section'>
+                    <Text>时间选择器</Text>
+                    <View>
+                        <Picker mode='time' onChange={this.onTimeChange}>
+                            <AtList>
+                                <AtListItem title='请选择时间' extraText={this.state.timeSel} />
+                            </AtList>
+                        </Picker>
+                    </View>
+                </View>
+
+                <View className='page-section'>
+            <Text>日期选择器</Text>
+            <View>
+              <Picker mode='date' onChange={this.onDateChange}>
                 <AtList>
-                  <AtListItem
-                    title='当前鱼缸为：'
-                    extraText={this.state.equList[0] || ""}
-                  />
+                  <AtListItem title='请选择日期' extraText={this.state.dateSel} />
                 </AtList>
               </Picker>
-                </View>
+            </View>
+          </View>
+        
 
                 <CardList columns={colums} dataSource={[]} />
 

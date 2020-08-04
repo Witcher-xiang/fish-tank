@@ -28,9 +28,14 @@ type PageDispatchProps = {
   asyncAdd: () => any
 }
 
-type PageOwnProps = {}
+type PageOwnProps = {
+  
+}
 
-type PageState = {}
+type PageState = 
+{
+  message:string
+}
 
 type IProps = PageStateProps & PageDispatchProps & PageOwnProps
 
@@ -40,7 +45,7 @@ interface Index {
 
 
 
-class Index extends Component {
+class Index extends Component<IProps,PageState> {
   constructor(props){
     super(props)
     this.state={
@@ -111,6 +116,7 @@ class Index extends Component {
         <Button style={{marginTop:"20px"}}  onClick={this.handleSignUp}>注册</Button>
       </View>
           </Form>
+
           <View>{this.state.message}</View>
       </View>
     )
