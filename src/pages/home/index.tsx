@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Button, Text, CoverImage,Picker } from '@tarojs/components'
+import { View, Button, Text, CoverImage,Picker   } from '@tarojs/components'
 import Taro from '@tarojs/taro';
 
 import { AtList, AtListItem } from 'taro-ui'
@@ -16,16 +16,16 @@ type PageStateProps = {
     }
 }
 
-
 type PageOwnProps = {
-    tid:any
+    tid:any;
 }
 
 type PageState = {
     tankStatus: any;
     equList: any[];
-    selectorChecked: String;
+    selectorChecked: string;
     id: String;
+    equipment: string;
 }
 
 type IProps = PageStateProps & PageOwnProps
@@ -35,8 +35,6 @@ interface Index {
     timer: any;
 }
 
-
-
 class Index extends Component<IProps, PageState> {
     constructor(porps) {
         super(porps);
@@ -45,13 +43,9 @@ class Index extends Component<IProps, PageState> {
             tankStatus: false,
             equList: [],
             selectorChecked: "",
-            id:""
+            id:"",
+            equipment:"",
         }
-
-    }
-    
-    componentWillReceiveProps(nextProps) {
-        console.log(this.props, nextProps)
     }
 
     componentWillUnmount() {
@@ -60,11 +54,8 @@ class Index extends Component<IProps, PageState> {
 
     async componentDidShow() {
         const  reg = /=(.+?)&/;
-        
         const { tid } = this.props;
         const id = reg.exec(tid)[1];
-
-        console.log("result",id)
 
         this.setState({
             id
@@ -73,18 +64,32 @@ class Index extends Component<IProps, PageState> {
             url:`http://140.143.24.32:8888/equipments?id=${id}`,
           });
 
-          console.log("res",res)
+          console.log("equipments",res)
           this.setState({
             equList:res?.data || []
-          })
+          }, () => this.refresh(res?.data[0]))
+
+          
+    }
+
+    refresh = async (value?:any) => {
+
+        const { selectorChecked, id } = this.state
+        const res = await Taro.request({
+            url:`http://140.143.24.32:8888/data?equipment=${selectorChecked || value}&id=${id}`,
+          });
+
+          console.log("列表返回值为：:",res)
     }
 
 
-    handleSelect(e) {
+    handleSelect =(e) => {
+        const selectIndex = e.detail.value;
+
+        console.log("被选择的值为：",selectIndex, this.state)
         this.setState({
-            selectorChecked: this.state.equList[e.detail.value]
-          })
-        console.log("被选择的值为：",e)
+            selectorChecked: this.state.equList[selectIndex]
+          }, () => this.refresh()) 
     }
 
     handleManageFishTank = () =>{
@@ -94,7 +99,13 @@ class Index extends Component<IProps, PageState> {
         Taro.redirectTo({
             url: `/pages/mangageDevice/index?id=${id}`
         })
-        
+    }
+
+    handleHistory = () => {
+        const { id } = this.state;
+        Taro.redirectTo({
+            url: `/pages/history/index?id=${id}`
+        })
     }
 
     handleDelete = (e) => {
@@ -203,12 +214,13 @@ class Index extends Component<IProps, PageState> {
 
                     <View>
                     <Button style={{marginTop:"20px"}}  onClick={this.handleManageFishTank}>管理鱼缸</Button>
+                    <Button style={{marginTop:"20px"}}  onClick={this.handleHistory}>查看历史记录</Button>
                     <View>请选择你要查看的鱼缸</View>
                     <Picker mode='selector' range={this.state.equList} onChange={this.handleSelect}>
                 <AtList>
                   <AtListItem
                     title='当前鱼缸为：'
-                    extraText={this.state.equList[0] || ""}
+                    extraText={ this.state.selectorChecked || this.state.equList[0] || ""}
                   />
                 </AtList>
               </Picker>

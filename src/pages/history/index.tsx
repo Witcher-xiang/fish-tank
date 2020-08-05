@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Button, Text, CoverImage, Picker,PickerRegionProps } from '@tarojs/components'
+import { View, Button, Text, CoverImage, Picker } from '@tarojs/components'
 import Taro from '@tarojs/taro';
 
 import { AtList, AtListItem } from 'taro-ui'
@@ -23,19 +23,20 @@ type PageOwnProps = {
 type PageState = {
     tankStatus: any;
     equList: any[];
-    selectorChecked: String;
+    selectorChecked: string;
     id: String;
-    dateSel: string;
-    timeSel: string;
+    endDate: string;
+    beginDate: string;
+    endTime: string;
+    beginTime: string;
 }
 
-type IProps = PageStateProps & PageOwnProps & PickerRegionProps
+type IProps = PageStateProps & PageOwnProps 
 
 interface Index {
     props: IProps;
     timer: any;
 }
-
 
 
 class Index extends Component<IProps, PageState> {
@@ -47,14 +48,12 @@ class Index extends Component<IProps, PageState> {
             equList: [],
             selectorChecked: "",
             id: "",
-            timeSel:"",
-            dateSel:""
+            endDate: "",
+            beginDate: "",
+            endTime:"",
+            beginTime:""
         }
 
-    }
-
-    componentWillReceiveProps(nextProps) {
-        console.log(this.props, nextProps)
     }
 
     componentWillUnmount() {
@@ -69,51 +68,64 @@ class Index extends Component<IProps, PageState> {
 
         console.log("result", id)
 
-        this.setState({
-            id
-        })
+        this.setState({id});
+        const res:any = await Taro.request({
+            url: `http://140.143.24.32:8888/equipments?id=${id}`,
+        });
+        this.setState({ equList: res?.data || [] })
+
+        console.log("鱼缸列表返回值", res)
+    }
+
+    refresh = async () => {
+
+        const {id} = this.state;
         const res = await Taro.request({
             url: `http://140.143.24.32:8888/equipments?id=${id}`,
         });
 
-        console.log("res", res)
+        console.log("refresh的返回值", res)
     }
 
-
-    handleSelect(e) {
+    handleSelect = (e) => {
         this.setState({
             selectorChecked: this.state.equList[e.detail.value]
         })
-        console.log("被选择的值为：", e)
+        console.log("被选择的index为：", e)
     }
 
-    handleManageFishTank = () => {
 
-        console.log("handleManageFishTank", this.state)
-        const { id } = this.state;
-        Taro.redirectTo({
-            url: `/pages/mangageDevice/index?id=${id}`
-        })
-
-    }
-
-    handleDelete = (e) => {
-
-    }
-
-    // 时间选择器
-    onTimeChange = (timeSel) => {
-        console.log("onTimeChange",timeSel)
+    // 开始选择器
+    onDateBeginChange = (e) => {
+        console.log("onTimeChange", e)
+        const beginDate = e.detail?.value;
         this.setState({
-            timeSel
+            beginDate
         })
     }
 
-    // 日期时间选择器
-    onDateChange  = (dateSel) => {
-        console.log("onTimeChange",dateSel)
+    onTimeBeginChange = (e) => {
+        console.log("onTimeChange", e)
+        const beginTime = e.detail?.value;
         this.setState({
-            dateSel
+            beginTime
+        })
+    }
+
+    // 结束选择器
+    onDateEndnChange = (e) => {
+        console.log("onTimeChange", e)
+        const endDate = e.detail?.value;
+        this.setState({
+            endDate
+        })
+    }
+
+    onTimeEndChange = (e) => {
+        console.log("onTimeChange", e)
+        const endTime = e.detail?.value;
+        this.setState({
+            endTime
         })
     }
 
@@ -201,46 +213,61 @@ class Index extends Component<IProps, PageState> {
             },
         ]
 
-        const { tankStatus } = this.state
+        const { tankStatus, selectorChecked, equList } = this.state
         return (
             <View className='index'>
+                  <View style={{fontSize:"25px",color:" #069D97"}}>查询鱼缸历史记录页面：</View>
 
+                <View className="selector">
 
-                <View>
-                    <Button style={{ marginTop: "20px" }} onClick={this.handleManageFishTank}>管理鱼缸</Button>
-                    <View>请选择你要查看的鱼缸</View>
                     <Picker mode='selector' range={this.state.equList} onChange={this.handleSelect}>
                         <AtList>
                             <AtListItem
-                                title='当前鱼缸为：'
-                                extraText={"324"}
+                                title='需要查询的鱼缸为：'
+                                extraText={equList[0] || selectorChecked || ""}
                             />
                         </AtList>
                     </Picker>
+
                 </View>
 
-                <View className='page-section'>
-                    <Text>时间选择器</Text>
-                    <View>
-                        <Picker mode='time' onChange={this.onTimeChange}>
+                {/*开始时间选择区域*/}
+                <View className='page-section'> 
+                    <View className="selector">
+                    <Text>开始时间：</Text>
+                        <Picker mode='date' onChange={this.onDateBeginChange}>
                             <AtList>
-                                <AtListItem title='请选择时间' extraText={this.state.timeSel} />
+                                <AtListItem title='日期' extraText={this.state.beginDate} />
+                            </AtList>
+                        </Picker>
+
+                        <Picker mode='time' onChange={this.onTimeBeginChange}>
+                            <AtList>
+                                <AtListItem title='时间' extraText={this.state.beginTime} />
                             </AtList>
                         </Picker>
                     </View>
                 </View>
 
-                <View className='page-section'>
-            <Text>日期选择器</Text>
-            <View>
-              <Picker mode='date' onChange={this.onDateChange}>
-                <AtList>
-                  <AtListItem title='请选择日期' extraText={this.state.dateSel} />
-                </AtList>
-              </Picker>
-            </View>
-          </View>
-        
+
+                {/*结束时间选择区域*/}
+                <View className='page-section'> 
+                    <View className="selector">
+                    <Text>结束时间：</Text>
+                        <Picker mode='date' onChange={this.onDateEndnChange}>
+                            <AtList>
+                                <AtListItem title='日期' extraText={this.state.endDate} />
+                            </AtList>
+                        </Picker>
+
+                        <Picker mode='time' onChange={this.onTimeEndChange}>
+                            <AtList>
+                                <AtListItem title='时间' extraText={this.state.endTime} />
+                            </AtList>
+                        </Picker>
+                    </View>
+                </View>
+
 
                 <CardList columns={colums} dataSource={[]} />
 
