@@ -24,7 +24,7 @@ type PageState = {
     tankStatus: any;
     equList: any[];
     selectorChecked: string;
-    id: String;
+    id: string;
     equipment: string;
 }
 
@@ -117,32 +117,44 @@ class Index extends Component<IProps, PageState> {
             {
                 label: "含氧量",
                 dataIndex: "o2",
-                unit: "DO"
+                unit: "DO",
+                target:"o2_target",
+                isTarger: true,
             },
             {
                 label: "二氧化碳含量",
                 dataIndex: " o2",
-                unit: ""
+                unit: "",
+                target:"o2_target",
+                isTarger: true,
             },
             {
                 label: "温度",
                 dataIndex: "temperature",
-                unit: "℃"
+                unit: "℃",
+                target:"temperature_target",
+                isTarger: true,
             },
             {
                 label: "盐度",
                 dataIndex: "saltness",
-                unit: "溶解度S"
+                unit: "溶解度S",
+                target:"tds_target",
+                isTarger: true,
             },
             {
                 label: "PH值",
                 dataIndex: "ph",
-                unit: "ph"
+                unit: "ph",
+                target:"ph_target",
+                isTarger: true,
             },
             {
                 label: "照度",
                 dataIndex: "勒克斯lux",
-                unit: "illuminance"
+                unit: "illuminance",
+                target:"illuminance_target",
+                isTarger: true,
             },
             {
                 label: "鱼食仓",
@@ -167,33 +179,17 @@ class Index extends Component<IProps, PageState> {
             {
                 label: "鱼食投放间隔",
                 dataIndex: "feeding_interval",
-                unit: "秒"
+                unit: "秒",
+                target:"feeding_interval_target",
+                isTarger: true
             },
             {
                 label: "每次鱼食投放量",
                 dataIndex: "feeding_amoun",
-                unit: "克"
-            },
-            // TODO这是啥玩意
-            {
-                label: "预设",
-                dataIndex: "preset",
-                unit: "鱼的名字"
-            },
-
-            //TODO 这个target离谱！
-            {
-                label: "含氧量目标值",
-                dataIndex: "DO",
-                unit: "o2_target",
-                isTarger: true,
-            },
-            {
-                label: "二氧化碳目标值",
-                dataIndex: "co2_target",
-                unit: "",
-                isTarger: true,
-            },
+                unit: "克",
+                targetL:"feeding_amount_target",
+                isTarger: true
+            }     
         ]
 
         const { tankStatus } = this.state
@@ -226,7 +222,7 @@ class Index extends Component<IProps, PageState> {
               </Picker>
                 </View>
 
-                <CardList columns={colums} dataSource={[]} />
+                <CardList equipment={this.state.selectorChecked || this.state.equList[0]} id={this.state.id} columns={colums} dataSource={[]} />
 
             </View>
         )

@@ -21,14 +21,19 @@ type PageOwnProps = {
 }
 
 type PageState = {
-    tankStatus: any;
+
     equList: any[];
+    historyList:any[];
+    historyListLenght:Number;
+    currHistory: string;
     selectorChecked: string;
     id: String;
     endDate: string;
     beginDate: string;
     endTime: string;
     beginTime: string;
+    
+
 }
 
 type IProps = PageStateProps & PageOwnProps 
@@ -44,8 +49,10 @@ class Index extends Component<IProps, PageState> {
         super(porps);
         this.timer = null
         this.state = {
-            tankStatus: false,
             equList: [],
+            historyList: [],
+            historyListLenght:0,
+            currHistory:"",
             selectorChecked: "",
             id: "",
             endDate: "",
@@ -77,11 +84,15 @@ class Index extends Component<IProps, PageState> {
         console.log("鱼缸列表返回值", res)
     }
 
-    refresh = async () => {
+    refresh =async  () => {
 
-        const {id} = this.state;
+        const {id, selectorChecked, beginDate, beginTime , endDate, endTime, equList} = this.state;
+        const startTime = `${beginDate}${beginTime || "00:00"}`
+        const endTiem = `${endDate}${endTime || "00:00"}`
+
+        console.log(startTime, endTiem)
         const res = await Taro.request({
-            url: `http://140.143.24.32:8888/equipments?id=${id}`,
+            url: `http://140.143.24.32:8888/history?id=${id}&equipment=${selectorChecked || equList[0]}&endTiem=${endTiem}&startTime=${startTime}`,
         });
 
         console.log("refresh的返回值", res)
@@ -127,6 +138,16 @@ class Index extends Component<IProps, PageState> {
         this.setState({
             endTime
         })
+    }
+
+    // 表Index数展示
+    onPageSelect = (e) => {
+        console.log("currHistory", e)
+        const currHistory = e.detail?.value;
+        this.setState({
+            currHistory
+        })
+    
     }
 
     render() {
@@ -213,13 +234,12 @@ class Index extends Component<IProps, PageState> {
             },
         ]
 
-        const { tankStatus, selectorChecked, equList } = this.state
+        const {  selectorChecked, equList, historyListLenght, currHistory } = this.state
         return (
             <View className='index'>
                   <View style={{fontSize:"25px",color:" #069D97"}}>查询鱼缸历史记录页面：</View>
 
                 <View className="selector">
-
                     <Picker mode='selector' range={this.state.equList} onChange={this.handleSelect}>
                         <AtList>
                             <AtListItem
@@ -228,7 +248,6 @@ class Index extends Component<IProps, PageState> {
                             />
                         </AtList>
                     </Picker>
-
                 </View>
 
                 {/*开始时间选择区域*/}
@@ -268,6 +287,19 @@ class Index extends Component<IProps, PageState> {
                     </View>
                 </View>
 
+                <View className="selector">
+                    <Picker mode='selector' range={this.state.equList} onChange={this.handleSelect}>
+                        <AtList>
+                            <AtListItem
+                                title='需要查询的页数'
+                                extraText={currHistory || ""}
+                                disabled = { historyListLenght > 0 ? false : true}
+                            />
+                        </AtList>
+                    </Picker>
+                </View>
+
+                <Button onClick={this.refresh}>搜索</Button>
 
                 <CardList columns={colums} dataSource={[]} />
 

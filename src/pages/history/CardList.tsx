@@ -50,7 +50,6 @@ const CardList = (props: CardProps) => {
                 <View className="title">
                     {columnItem?.label}:
 
-                {columnItem?.isTarger ? <Text onClick={() => handleEdit(columnItem)} style={{ color: "#6190E8", marginRight: "20px" }}>修改</Text> : ""}
                 </View>
 
                 <View className="body">
@@ -62,58 +61,10 @@ const CardList = (props: CardProps) => {
         </View>)
     }
 
-    const handleVisible = () => {
-        setVisible(true);
-    }
-
-    const Modal = () => {
-        if(!visible) return null;
-
-        const onOk = () => {
-            onCancel()
-            console.log("modalValue",modalValue)
-            
-        }
-
-        const onCancel = () => {
-            setVisible(false);
-            setSubmitValue("");
-        }
-
-        const handleChange = (value) =>{
-            console.log(value);
-            setSubmitValue(value)
-        }
-
-        return (
-            <AtModal isOpened>
-                <AtModalHeader>标题</AtModalHeader>
-                <AtModalContent>
-                {/* <AtForm
-                    onSubmit={this.onSubmit.bind(this)}
-                    onReset={this.onReset.bind(this)}
-                >
-                    <AtInput 
-                    name='value' 
-                    title='文本' 
-                    type='text' 
-                    placeholder='单行文本' 
-                    value={this.state.value} 
-                    onChange={this.handleChange.bind(this, 'value')} 
-                    />
-                    <AtButton formType='submit'>提交</AtButton>
-                    <AtButton formType='reset'>重置</AtButton>
-                </AtForm> */}
-                    <AtInput name="value" placeholder='输入修改值' value={submitValue}    title={modalValue?.label} onChange={handleChange}/>
-                </AtModalContent>
-                <AtModalAction> <Button onClick={onCancel}>取消</Button> <Button onClick={onOk}>确定</Button> </AtModalAction>
-            </AtModal>
-        )
-    }
 
     return (
         <View style={{ width: "100%" }}>
-            <Modal/>
+     
             {columns.map(item => {
 
                 return (
