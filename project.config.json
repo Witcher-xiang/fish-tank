@@ -2,7 +2,7 @@
 	"miniprogramRoot": ".dist",
 	"projectname": "fish-tank-new",
 	"description": "",
-	"appid": "touristappid",
+	"appid": "wx909cc2a98e0d8ade",
 	"setting": {
 		"urlCheck": true,
 		"es6": false,

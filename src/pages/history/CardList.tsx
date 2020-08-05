@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Button, Text, CoverImage, } from '@tarojs/components';
-import { AtModal, AtModalHeader, AtModalContent, AtModalAction, AtInput } from "taro-ui";
 
 import './index.less';
 
