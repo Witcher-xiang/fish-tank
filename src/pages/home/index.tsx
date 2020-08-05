@@ -26,6 +26,7 @@ type PageState = {
     selectorChecked: string;
     id: string;
     equipment: string;
+    data: any;
 }
 
 type IProps = PageStateProps & PageOwnProps
@@ -45,6 +46,7 @@ class Index extends Component<IProps, PageState> {
             selectorChecked: "",
             id:"",
             equipment:"",
+            data:{}
         }
     }
 
@@ -80,6 +82,10 @@ class Index extends Component<IProps, PageState> {
           });
 
           console.log("列表返回值为：:",res)
+          this.setState({
+            data: res?.data,
+            tankStatus: res?.data?.co2 ? true : false,
+          })
     }
 
 
@@ -123,9 +129,9 @@ class Index extends Component<IProps, PageState> {
             },
             {
                 label: "二氧化碳含量",
-                dataIndex: " o2",
+                dataIndex: "co2",
                 unit: "",
-                target:"o2_target",
+                target:"co2_target",
                 isTarger: true,
             },
             {
@@ -138,7 +144,7 @@ class Index extends Component<IProps, PageState> {
             {
                 label: "盐度",
                 dataIndex: "saltness",
-                unit: "溶解度S",
+                unit: "S(溶解度)",
                 target:"tds_target",
                 isTarger: true,
             },
@@ -151,8 +157,8 @@ class Index extends Component<IProps, PageState> {
             },
             {
                 label: "照度",
-                dataIndex: "勒克斯lux",
-                unit: "illuminance",
+                dataIndex: "illuminance",
+                unit: "lux",
                 target:"illuminance_target",
                 isTarger: true,
             },
@@ -163,8 +169,8 @@ class Index extends Component<IProps, PageState> {
             },
             {
                 label: "酸剂仓",
-                dataIndex: "%",
-                unit: "acid"
+                dataIndex: "acid",
+                unit: "%"
             },
             {
                 label: "碱剂仓",
@@ -185,7 +191,7 @@ class Index extends Component<IProps, PageState> {
             },
             {
                 label: "每次鱼食投放量",
-                dataIndex: "feeding_amoun",
+                dataIndex: "feeding_amount",
                 unit: "克",
                 targetL:"feeding_amount_target",
                 isTarger: true
@@ -222,7 +228,7 @@ class Index extends Component<IProps, PageState> {
               </Picker>
                 </View>
 
-                <CardList equipment={this.state.selectorChecked || this.state.equList[0]} id={this.state.id} columns={colums} dataSource={[]} />
+                <CardList equipment={this.state.selectorChecked || this.state.equList[0]} id={this.state.id} columns={colums} dataSource={this.state.data || {}} />
 
             </View>
         )

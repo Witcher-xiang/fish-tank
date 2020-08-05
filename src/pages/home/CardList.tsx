@@ -16,6 +16,7 @@ interface columnItem {
     label:string,
     dataIndex?:any,
     isTarger?: any
+    target?: any;
 }
 
 const CardList = (props: CardProps) => {
@@ -25,6 +26,7 @@ const CardList = (props: CardProps) => {
     const [visible ,setVisible] = useState(false);
     const [modalValue, setModalValue] = useState<any>("");
     const [submitValue, setSubmitValue] = useState("");
+    const [message, setMessage] = useState("");
 
     const card = (columnItem:columnItem = {label:""}, dataList = []) => {
 
@@ -34,7 +36,7 @@ const CardList = (props: CardProps) => {
             console.log("valuevaluevalue:",value);
         }
 
-        let itemData = "";
+        let itemData = {};
 
         Array.isArray(dataList) ?
 
@@ -49,7 +51,10 @@ const CardList = (props: CardProps) => {
             :
             Object.keys(dataList).forEach(key => {
                 if (columnItem?.dataIndex == key) {
-                    itemData = dataList[key]
+                    itemData["data"] = dataList[key]
+                }
+                if (columnItem?.target == key) {
+                    itemData["target"]= dataList[key]
                 }
             })
 
@@ -60,11 +65,14 @@ const CardList = (props: CardProps) => {
 
                 {columnItem?.isTarger ? <Text onClick={() => handleEdit(columnItem)} style={{ color: "#6190E8", marginRight: "20px" }}>修改</Text> : ""}
                 </View>
-
+                
                 <View className="body">
-                    <Text>
-                        {itemData}
-                    </Text>
+                    <View>
+                        当前数值：{itemData?.data}{`    ${columnItem?.unit}`}
+                    </View>
+                    {itemData?.target && <View>
+                        目标数值：{itemData?.target}{`    ${columnItem?.unit}`}
+                    </View>}
                 </View>
             </View>
         </View>)
@@ -89,6 +97,9 @@ const CardList = (props: CardProps) => {
             const res = await Taro.request({
                 url:`http://140.143.24.32:8888/control?id=${id}&equipment=${equipment}&${target}=${submitValue}`,
               });
+
+              console.log(res.data)
+              setMessage(res.data?.status ? "修改成功" : "修改失败，设备可能离线")
             
         }
 
@@ -115,6 +126,8 @@ const CardList = (props: CardProps) => {
 
     return (
         <View style={{ width: "100%" }}>
+        <View>{message}</View>
+        <View style={{ width: "100%" }}>  
             <Modal/>
             {columns.map(item => {
 
@@ -122,6 +135,7 @@ const CardList = (props: CardProps) => {
                     card(item, dataSource)
                 )
             })}
+        </View>
         </View>
     )
 }

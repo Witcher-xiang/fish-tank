@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Button, Text, CoverImage, } from '@tarojs/components';
-import { AtModal, AtModalHeader, AtModalContent, AtModalAction, AtInput  } from "taro-ui";
+import { AtModal, AtModalHeader, AtModalContent, AtModalAction, AtInput } from "taro-ui";
 
 import './index.less';
 
@@ -14,16 +14,16 @@ const CardList = (props: CardProps) => {
 
     const { columns, dataSource } = props;
 
-    const [visible ,setVisible] = useState(false);
+    const [visible, setVisible] = useState(false);
     const [modalValue, setModalValue] = useState({});
-    const [submitValue, setSubmitValue] = useState("");
+
 
     const card = (columnItem = {}, dataList = []) => {
 
         const handleEdit = (value) => {
             setVisible(true);
             setModalValue(value);
-            console.log("valuevaluevalue:",value);
+            console.log("valuevaluevalue:", value);
         }
 
         let itemData = "";
@@ -41,7 +41,10 @@ const CardList = (props: CardProps) => {
             :
             Object.keys(dataList).forEach(key => {
                 if (columnItem?.dataIndex == key) {
-                    itemData = dataList[key]
+                    itemData["data"] = dataList[key]
+                }
+                if (columnItem?.target == key) {
+                    itemData["target"] = dataList[key]
                 }
             })
 
@@ -53,9 +56,12 @@ const CardList = (props: CardProps) => {
                 </View>
 
                 <View className="body">
-                    <Text>
-                        {itemData}
-                    </Text>
+                    <View>
+                        当前数值：{itemData?.data}{`    ${columnItem?.unit}`}
+                    </View>
+                    {itemData?.target && <View>
+                        目标数值：{itemData?.target}{`    ${columnItem?.unit}`}
+                    </View>}
                 </View>
             </View>
         </View>)
@@ -64,7 +70,7 @@ const CardList = (props: CardProps) => {
 
     return (
         <View style={{ width: "100%" }}>
-     
+
             {columns.map(item => {
 
                 return (
