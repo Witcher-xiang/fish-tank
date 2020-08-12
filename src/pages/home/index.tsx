@@ -24,6 +24,7 @@ type PageState = {
     tankStatus: any;
     equList: any[];
     selectorChecked: string;
+    tankHas:boolean;
     id: string;
     equipment: string;
     data: any;
@@ -42,6 +43,7 @@ class Index extends Component<IProps, PageState> {
         this.timer = null
         this.state = {
             tankStatus: false,
+            tankHas: false,
             equList: [],
             selectorChecked: "",
             id:"",
@@ -76,15 +78,22 @@ class Index extends Component<IProps, PageState> {
 
     refresh = async (value?:any) => {
 
-        const { selectorChecked, id } = this.state
+        const { selectorChecked, id } = this.state;
+        let select = selectorChecked
+
+        if( !selectorChecked ) select= this.state.equList[0]
+
+        console.log( typeof selectorChecked)
+        console.log("selectorChecked",select, "selectorChecked", value)
         const res = await Taro.request({
-            url:`http://140.143.24.32:8888/data?equipment=${selectorChecked || value}&id=${id}`,
+            url:`http://140.143.24.32:8888/data?equipment=${select || value}&id=${id}`,
           });
 
-          console.log("列表返回值为：:",res)
+          console.log("列表返回值为：:",res.data.equipment_exist)
           this.setState({
             data: res?.data,
-            tankStatus: res?.data?.co2 ? true : false,
+            tankStatus: res?.data?.equipment_connection,
+            tankHas: res?.data?.equipment_exist
           })
     }
 
@@ -193,9 +202,44 @@ class Index extends Component<IProps, PageState> {
                 label: "每次鱼食投放量",
                 dataIndex: "feeding_amount",
                 unit: "克",
-                targetL:"feeding_amount_target",
+                target:"feeding_amount_target",
                 isTarger: true
-            }     
+            },     
+            {
+                label: "LED灯光显示",
+                dataIndex: "led_mode",
+                unit: " （输入值含义：0代表色彩渐变循环、1代表白色呼吸、2代表指定色彩）",
+                target:"led_mode",
+                isTarger: true
+            },
+            {
+                label: "LED灯红色",
+                dataIndex: "led_r",
+                unit: " （红色亮度值，0-255）",
+                target:"led_r",
+                isTarger: true
+            },
+            {
+                label: "LED灯蓝色",
+                dataIndex: "led_b",
+                unit: " （蓝色亮度值，0-255）",
+                target:"led_b",
+                isTarger: true
+            } ,
+            {
+                label: "LED灯绿色",
+                dataIndex: "led_g",
+                unit: " （绿色亮度值，0-255）",
+                target:"led_g",
+                isTarger: true
+            } ,
+            {
+                label: "LED灯白色",
+                dataIndex: "led_w",
+                unit: " （白色亮度值，0-255）",
+                target:"led_w",
+                isTarger: true
+            } 
         ]
 
         const { tankStatus } = this.state
@@ -213,14 +257,16 @@ class Index extends Component<IProps, PageState> {
                         <Text className="text">当前无法连接到鱼缸</Text>
                     </View>
                 }
-
+                <Button onClick={this.refresh}>刷新</Button>
+                { !this.state.tankHas && <Text>注意：此鱼缸不存在</Text>}
                     <View>
                     <Button style={{marginTop:"20px"}}  onClick={this.handleManageFishTank}>管理鱼缸</Button>
                     <Button style={{marginTop:"20px"}}  onClick={this.handleHistory}>查看历史记录</Button>
                     <View>请选择你要查看的鱼缸</View>
-                    <Picker mode='selector' range={this.state.equList} onChange={this.handleSelect}>
+                    <Picker mode='selector'  range={this.state.equList} onChange={this.handleSelect}>
                 <AtList>
                   <AtListItem
+                    
                     title='当前鱼缸为：'
                     extraText={ this.state.selectorChecked || this.state.equList[0] || ""}
                   />

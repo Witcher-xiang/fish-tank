@@ -70,8 +70,9 @@ const CardList = (props: CardProps) => {
                     <View>
                         当前数值：{itemData?.data}{`    ${columnItem?.unit}`}
                     </View>
-                    {itemData?.target && <View>
-                        目标数值：{itemData?.target}{`    ${columnItem?.unit}`}
+            
+                    {(itemData?.target && columnItem?.target !== columnItem?.dataIndex ) && <View>
+                        目标数值：{itemData?.target || "无"}{`    ${columnItem?.unit}`}
                     </View>}
                 </View>
             </View>
