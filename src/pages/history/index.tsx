@@ -25,14 +25,13 @@ type PageState = {
     equList: any[];
     historyList:any[];
     historyListLenght:Number;
-    currHistory: string;
+    currHistory: number;
     selectorChecked: string;
     id: String;
     endDate: string;
     beginDate: string;
     endTime: string;
     beginTime: string;
-    
 
 }
 
@@ -52,7 +51,7 @@ class Index extends Component<IProps, PageState> {
             equList: [],
             historyList: [],
             historyListLenght:0,
-            currHistory:"",
+            currHistory:0,
             selectorChecked: "",
             id: "",
             endDate: "",
@@ -88,19 +87,23 @@ class Index extends Component<IProps, PageState> {
 
         const {id, selectorChecked, beginDate, beginTime , endDate, endTime, equList} = this.state;
         const startTime = `${beginDate}${beginTime || "00:00"}`
-        const endTiem = `${endDate}${endTime || "00:00"}`
+        const endTimeValue = `${endDate}${endTime || "00:00"}`
 
-        console.log(startTime, endTiem)
+        console.log(startTime, endTime)
         const res = await Taro.request({
-            url: `http://140.143.24.32:8888/history?id=${id}&equipment=${selectorChecked || equList[0]}&endTiem=${endTiem}&startTime=${startTime}`,
+            url: `http://140.143.24.32:8888/history?id=${id}&equipment=${selectorChecked || equList[0]}&endTime=${endTimeValue}&startTime=${startTime}`,
         });
 
         console.log("refresh的返回值", res)
+        this.setState({
+            historyListLenght: res.data.length,
+            historyList: res.data,
+        })
     }
 
     handleSelect = (e) => {
         this.setState({
-            selectorChecked: this.state.equList[e.detail.value]
+            currHistory: e.detail?.value 
         })
         console.log("被选择的index为：", e)
     }
@@ -140,9 +143,20 @@ class Index extends Component<IProps, PageState> {
         })
     }
 
+    creactList = (length) => {
+        console.log("asdfdsf",length)
+        let arr = []
+        for(let i =0; i<length; i++){
+            arr.push(`${i}`)
+        }
+
+        console.log("arr",arr)
+        return arr;
+    }
+
     // 表Index数展示
     onPageSelect = (e) => {
-        console.log("currHistory", e)
+        console.log("currHistory", e.detail?.value)
         const currHistory = e.detail?.value;
         this.setState({
             currHistory
@@ -225,12 +239,47 @@ class Index extends Component<IProps, PageState> {
                 label: "每次鱼食投放量",
                 dataIndex: "feeding_amount",
                 unit: "克",
-                targetL:"feeding_amount_target",
+                target:"feeding_amount_target",
                 isTarger: true
-            }     
+            },     
+            {
+                label: "LED灯光显示",
+                dataIndex: "led_mode",
+                unit: " （输入值含义：0代表色彩渐变循环、1代表白色呼吸、2代表指定色彩）",
+                target:"led_mode",
+                isTarger: true
+            },
+            {
+                label: "LED灯红色",
+                dataIndex: "led_r",
+                unit: " （红色亮度值，0-255）",
+                target:"led_r",
+                isTarger: true
+            },
+            {
+                label: "LED灯蓝色",
+                dataIndex: "led_b",
+                unit: " （蓝色亮度值，0-255）",
+                target:"led_b",
+                isTarger: true
+            } ,
+            {
+                label: "LED灯绿色",
+                dataIndex: "led_g",
+                unit: " （绿色亮度值，0-255）",
+                target:"led_g",
+                isTarger: true
+            } ,
+            {
+                label: "LED灯白色",
+                dataIndex: "led_w",
+                unit: " （白色亮度值，0-255）",
+                target:"led_w",
+                isTarger: true
+            } 
         ]
 
-        const {  selectorChecked, equList, historyListLenght, currHistory } = this.state
+        const {  selectorChecked, equList, historyListLenght,historyList, currHistory } = this.state
         return (
             <View className='index'>
                   <View style={{fontSize:"25px",color:" #069D97"}}>查询鱼缸历史记录页面：</View>
@@ -240,7 +289,7 @@ class Index extends Component<IProps, PageState> {
                         <AtList>
                             <AtListItem
                                 title='需要查询的鱼缸为：'
-                                extraText={equList[0] || selectorChecked || ""}
+                                extraText={ selectorChecked || equList[0]  || ""}
                             />
                         </AtList>
                     </Picker>
@@ -264,7 +313,7 @@ class Index extends Component<IProps, PageState> {
                     </View>
                 </View>
 
-
+                {console.log("historyListLenght",historyListLenght)}
                 {/*结束时间选择区域*/}
                 <View className='page-section'> 
                     <View className="selector">
@@ -282,13 +331,13 @@ class Index extends Component<IProps, PageState> {
                         </Picker>
                     </View>
                 </View>
-
+                {console.log("currHistory",currHistory)}
                 <View className="selector">
-                    <Picker mode='selector' range={this.state.equList} onChange={this.handleSelect}>
+                    <Picker mode='selector' range={this.creactList(historyListLenght )} onChange={this.handleSelect}>
                         <AtList>
                             <AtListItem
                                 title='需要查询的页数'
-                                extraText={currHistory || ""}
+                                extraText={currHistory + "" || ""}
                                 disabled = { historyListLenght > 0 ? false : true}
                             />
                         </AtList>
@@ -297,7 +346,7 @@ class Index extends Component<IProps, PageState> {
 
                 <Button onClick={this.refresh}>搜索</Button>
 
-                <CardList columns={colums} dataSource={[]} />
+                <CardList columns={colums} dataSource={historyList[currHistory]} />
 
             </View>
         )
