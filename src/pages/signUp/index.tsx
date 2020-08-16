@@ -70,7 +70,7 @@ class Index extends Component {
       console.log("返回的注册信息",res)
 
       if(res?.data?.status === true){
-      Taro.redirectTo({
+      Taro.navigateTo({
         url: '/pages/index/index'
       })
       this.setState({message:"注册成功"})

@@ -57,10 +57,14 @@ class Index extends Component<IProps, PageState> {
     }
 
     async componentDidShow() {
-        const  reg = /=(.+?)&/;
+       // const  reg = /=(.+?)/;
         const { tid } = this.props;
-        const id = reg.exec(tid)[1];
-
+        console.log("tid:",tid)
+        // const id = reg.exec(tid)[1];
+        const idArr = tid.split("=")
+        console.log("idArr",idArr)
+        const id = idArr[idArr.length-1]
+        console.log("ID:",id)
         this.setState({
             id
         })
@@ -84,7 +88,7 @@ class Index extends Component<IProps, PageState> {
         if( !selectorChecked ) select= this.state.equList[0]
 
         console.log( typeof selectorChecked)
-        console.log("selectorChecked",select, "selectorChecked", value)
+        console.log("被选中的equipment",select, "selectorChecked", value)
         const res = await Taro.request({
             url:`http://140.143.24.32:8888/data?equipment=${select || value}&id=${id}`,
           });
@@ -111,14 +115,14 @@ class Index extends Component<IProps, PageState> {
 
         console.log("handleManageFishTank",this.state)
         const { id } = this.state;
-        Taro.redirectTo({
+        Taro.navigateTo({
             url: `/pages/mangageDevice/index?id=${id}`
         })
     }
 
     handleHistory = () => {
         const { id } = this.state;
-        Taro.redirectTo({
+        Taro.navigateTo({
             url: `/pages/history/index?id=${id}`
         })
     }

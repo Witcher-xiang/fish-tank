@@ -59,7 +59,7 @@ class Index extends Component<IProps,PageState> {
       console.log("登录的res为",res);
      // 跳转到目的页面，在当前页面打开
      if(res?.data?.status === true){
-      Taro.redirectTo({
+      Taro.navigateTo({
         url: `/pages/home/index?id=${userName}`
       })
       this.setState({ message:"登录成功！" })
@@ -74,7 +74,7 @@ class Index extends Component<IProps,PageState> {
   }
   
   handleSignUp = () => {
-    Taro.redirectTo({
+    Taro.navigateTo({
       url: '/pages/signUp/index'
     })
   }
